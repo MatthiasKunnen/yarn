@@ -954,6 +954,20 @@ test('should not loose dependencies when installing with --production', () =>
     expect(await getPackageVersion(config, 'balanced-match')).toEqual('0.4.2');
   }));
 
+test('should install dependency moved from devDependencies with --production', () =>
+  runInstall({production: true}, 'moving-dev-to-prod-dependency', async (config, reporter): Promise<void> => {
+    const pkgJsonPath = path.join(config.cwd, 'package.json');
+    const pkgJson = await fs.readJson(pkgJsonPath);
+    pkgJson.dependencies = pkgJson.devDependencies;
+    delete pkgJson.devDependencies;
+    await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson));
+
+    const reInstall = new Install({production: true}, config, reporter, await Lockfile.fromDirectory(config.cwd));
+    await reInstall.init();
+
+    expect(await fs.exists(path.join(config.cwd, 'node_modules', 'mkdirp'))).toEqual(true)
+  }));
+
 // https://github.com/yarnpkg/yarn/issues/2470
 test('a allows dependency with [] in os cpu requirements', () =>
   runInstall({}, 'empty-os', async config => {
