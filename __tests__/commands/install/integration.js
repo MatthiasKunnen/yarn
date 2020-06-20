@@ -954,6 +954,7 @@ test('should not loose dependencies when installing with --production', () =>
     expect(await getPackageVersion(config, 'balanced-match')).toEqual('0.4.2');
   }));
 
+// Issue #5091
 test('should install dependency moved from devDependencies with --production', () =>
   runInstall({production: true}, 'moving-dev-to-prod-dependency', async (config, reporter): Promise<void> => {
     const pkgJsonPath = path.join(config.cwd, 'package.json');
